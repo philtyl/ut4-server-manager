@@ -51,7 +51,7 @@ function status() {
 }
 
 function install() {
-  local server_url=
+  server_url=
   while [ ! -z "$1" ]; do
     case $1 in
       -u | --url )
@@ -78,7 +78,6 @@ function install() {
 }
 
 function download_server() {
-  local server_url=$1
   if [ -z "$server_url" ]; then
     echo "Server Download URL [Release list accessible from https://www.epicgames.com/unrealtournament/blog?category=releases]: "
     read server_url
@@ -90,7 +89,6 @@ function download_server() {
 }
 
 function unpack_server() {
-  local server_url=$1
   rm -rf ${UT4_ROOT_DIR}/core
   mkdir -p ${UT4_ROOT_DIR}/core
   unzip `echo "$server_url" | sed -r 's/.*\/.*\///'` -d ${UT4_ROOT_DIR}/core
