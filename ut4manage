@@ -97,7 +97,7 @@ function stop_server() {
     case $1 in
       -a | all )
         for server in ~/.ut4/pid/*; do
-          [ -d "$server" ] || continue
+          [ -f "$server" ] || continue
           stop_server ${server##*/}
         done
         ;;
