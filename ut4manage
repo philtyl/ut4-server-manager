@@ -203,7 +203,7 @@ function start_server() {
           mkdir -p "$UT4_ROOT_DIR/servers/$1/logs"
           savelog "$UT4_ROOT_DIR/servers/$1/logs/server-$1.log"
           mkdir -p "$UT4_ROOT_DIR/pid"
-          ${UT4_ROOT_DIR}/servers/$1/game/Engine/Binaries/Linux/${SERVER_BINARY} UnrealTournament ${SERVER_START_PARAMS} 2>&1 >> "$UT4_ROOT_DIR/servers/$1/logs/server-$1.log" & echo $! > ~/.ut4/pid/"$1"
+          ${UT4_ROOT_DIR}/servers/$1/game/Engine/Binaries/Linux/${SERVER_BINARY} UnrealTournament ${SERVER_START_PARAMS} 2>&1 >> "$UT4_ROOT_DIR/servers/$1/logs/server-$1.log" & echo "$!" > ~/.ut4/pid/$1
         else
           echo "Server $1 is already running, skipping..."
         fi
