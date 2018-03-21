@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash +x
 # ut4 server management script
 
 function usage() {
