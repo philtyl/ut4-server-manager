@@ -133,7 +133,7 @@ function create_server() {
   while [ ! -z "$1" ]; do
     if [ ! -d "$UT4_ROOT_DIR/servers/$1" ]; then
       mkdir -p "$UT4_ROOT_DIR/servers/$1/config"
-      cp -r "~/.ut4/template/*" "$UT4_ROOT_DIR/servers/$1/config/"
+      cp -r /.ut4/template/* "$UT4_ROOT_DIR/servers/$1/config/"
       cp -rfal "$UT4_ROOT_DIR/core" "$UT4_ROOT_DIR/servers/$1/game"
       sed -i "s/ServerName=/ServerName=$1 Server/g" "$UT4_ROOT_DIR/servers/$1/config/Game.ini"
       update_server_settings "$1"
