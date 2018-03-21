@@ -23,17 +23,12 @@ function status_footer() {
 
 function status() {
   if [ -z "$1" ]; then
-    $1="-a"
+    status_all
   fi
   while [ ! -z "$1" ]; do
     case $1 in
       -a | --all )
-        if [ -d "$UT4_ROOT_DIR/servers" ]; then
-          for server in "$UT4_ROOT_DIR/servers/"*; do
-            [ -d "$server" ] || continue
-            status ${server##*/}
-          done
-        fi
+        status_all
         ;;
 
       * )
@@ -46,6 +41,15 @@ function status() {
     esac
     shift
   done
+}
+
+function status_all() {
+  if [ -d "$UT4_ROOT_DIR/servers" ]; then
+    for server in "$UT4_ROOT_DIR/servers/"*; do
+      [ -d "$server" ] || continue
+      status ${server##*/}
+    done
+  fi
 }
 
 function install() {
