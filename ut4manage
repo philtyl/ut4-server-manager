@@ -219,6 +219,7 @@ function main() {
         ;;
 
       -s | status )
+        shift
         status_header
         status "$@"
         status_footer
