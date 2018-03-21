@@ -9,6 +9,10 @@ function default_settings() {
   if [ -z "$EDITOR" ]; then
     EDITOR=vim
   fi
+
+  if [ -z "$SERVER_BINARY" ]; then
+    SERVER_BINARY='UE4Server-Linux-Shipping'
+  fi
 }
 
 function status_header() {
