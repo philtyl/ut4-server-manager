@@ -11,7 +11,11 @@ function default_settings() {
   fi
 
   if [ -z "$SERVER_BINARY" ]; then
-    SERVER_BINARY='UE4Server-Linux-Shipping'
+    SERVER_BINARY="UE4Server-Linux-Shipping"
+  fi
+
+  if [ -z "$SERVER_START_PARAMS" ]; then
+    SERVER_START_PARAMS="UT-Entry?Game=Lobby"
   fi
 }
 
@@ -84,7 +88,7 @@ function install() {
 
   chmod a+x ${UT4_ROOT_DIR}/core/LinuxServer/Engine/Binaries/Linux/*
   chmod a+x ${UT4_ROOT_DIR}/core/LinuxServer/UnrealTournament/Binaries/Linux/*
-  ${UT4_ROOT_DIR}/core/LinuxServer/Engine/Binaries/Linux/${SERVER_BINARY} UnrealTournament DM-DeckTest -log
+  ${UT4_ROOT_DIR}/core/LinuxServer/Engine/Binaries/Linux/${SERVER_BINARY} UnrealTournament ${SERVER_START_PARAMS} -log
 }
 
 function download_server() {
