@@ -80,6 +80,9 @@ function install() {
     echo "Unable to install base UT4 server pack"
     exit 1
   fi
+
+  chmod a+x ${UT4_ROOT_DIR}/core/LinuxServer/Engine/Binaries/Linux/*
+  chmod a+x ${UT4_ROOT_DIR}/core/LinuxServer/UnrealTournament/Binaries/Linux/*
 }
 
 function download_server() {
@@ -200,7 +203,7 @@ function start_server() {
           mkdir -p "$UT4_ROOT_DIR/servers/$1/logs"
           savelog "$UT4_ROOT_DIR/servers/$1/logs/server-$1.log"
           mkdir -p "$UT4_ROOT_DIR/pid"
-          ${UT4_ROOT_DIR}/servers/$1/game/Engine/Binaries/Linux/${SERVER_BINARY} UnrealTournament ${SERVER_START_PARAMS} 2>&1 >> "$UT4_ROOT_DIR/servers/$1/logs/server-$1.log" & echo $! >> "~/.ut4/pid/$1"
+          ${UT4_ROOT_DIR}/servers/$1/game/Engine/Binaries/Linux/${SERVER_BINARY} UnrealTournament ${SERVER_START_PARAMS} 2>&1 >> "$UT4_ROOT_DIR/servers/$1/logs/server-$1.log" & echo $! > "~/.ut4/pid/$1"
         else
           echo "Server $1 is already running, skipping..."
         fi
