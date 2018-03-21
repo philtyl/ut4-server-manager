@@ -138,7 +138,7 @@ function create_server() {
     if [ ! -d "$UT4_ROOT_DIR/servers/$1" ]; then
       mkdir -p "$UT4_ROOT_DIR/servers/$1/config"
       cp -r ~/.ut4/template/* "$UT4_ROOT_DIR/servers/$1/config/"
-      cp -rfal "$UT4_ROOT_DIR/core" "$UT4_ROOT_DIR/servers/$1/game"
+      cp -rfal "$UT4_ROOT_DIR/core/LinuxServer" "$UT4_ROOT_DIR/servers/$1/game"
       sed -i "s/ServerName=/ServerName=$1 Server/g" "$UT4_ROOT_DIR/servers/$1/config/Game.ini"
       update_server_settings "$1"
     else
@@ -163,9 +163,11 @@ function update_server_settings() {
             ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Game.ini"
             ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Rules.ini"
           fi
+          mkdir -p "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer"
           cp "$UT4_ROOT_DIR/servers/$1/config/Engine.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Engine.ini"
           cp "$UT4_ROOT_DIR/servers/$1/config/Game.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Game.ini"
           cp "$UT4_ROOT_DIR/servers/$1/config/Rules.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Rules.ini"
+          mkdir -p "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/Rulesets"
           for ruleset in "$UT4_ROOT_DIR/servers/$1/config/rulesets/*.json"; do
             [ -f "$ruleset" ] || continue
             if ${edit}; then
