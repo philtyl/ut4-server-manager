@@ -80,6 +80,7 @@ function install() {
 
   chmod a+x ${UT4_ROOT_DIR}/core/LinuxServer/Engine/Binaries/Linux/*
   chmod a+x ${UT4_ROOT_DIR}/core/LinuxServer/UnrealTournament/Binaries/Linux/*
+  ${UT4_ROOT_DIR}/core/LinuxServer/Engine/Binaries/Linux/${SERVER_BINARY} UnrealTournament DM-DeckTest -log
 }
 
 function download_server() {
