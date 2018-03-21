@@ -37,7 +37,9 @@ function status() {
         ;;
 
       * )
-        pid=$(cat ~/.ut4/pid/$1)
+        if [ -f ~/.ut4/pid/$1 ]; then
+          pid=$(cat ~/.ut4/pid/$1)
+        fi
         [[ ! -z "$pid" ]] && [[ f=$(ps -p ${pid}) ]] && status="UP" || status="DOWN"
         printf "║ %16s │ %6s │ %8d ║\n" "$1" "$status" "$pid"
         ;;
