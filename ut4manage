@@ -17,6 +17,10 @@ function default_settings() {
   if [ -z "$UT4_ROOT_DIR" ]; then
     UT4_ROOT_DIR=~/.ut4
   fi
+
+  if [ -z "$EDITOR" ]; then
+    EDITOR=vim
+  fi
 }
 
 function status_header() {
@@ -154,7 +158,7 @@ function update_server_settings() {
 
       * )
         if [ -d "$UT4_ROOT_DIR/servers/$1" ]; then
-          if [ "$editor" ]; then
+          if [ ${editor} ]; then
             ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Engine.ini"
             ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Game.ini"
             ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Rules.ini"
