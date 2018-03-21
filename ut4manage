@@ -66,12 +66,12 @@ function install() {
     shift
   done
 
-  if download_server ${server_url}; then
+  if ! download_server ${server_url}; then
     echo "Unable to download UT4 server pack"
     exit 1
   fi
 
-  if unpack_server ${server_url}; then
+  if ! unpack_server ${server_url}; then
     echo "Unable to install base UT4 server pack"
     exit 1
   fi
