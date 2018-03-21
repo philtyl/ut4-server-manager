@@ -40,7 +40,7 @@ function status() {
 
       * )
         pid=$(cat "~/.ut4/pid/$1")
-        [[ kill -0 "$pid" ]] && status="UP" || status="DOWN"
+        [[ ps -p ${pid} > /dev/null ]] && status="UP" || status="DOWN"
         printf "║ %16s │ %6s │ %8d ║" "$1" "$status" "$pid"
         ;;
     esac
@@ -109,11 +109,11 @@ function stop_server() {
           kill "$pid"
 
           retry_count=0
-          until [ ! kill -0 "$pid" ] || [ "$retry_count" -eq 5 ]; do
+          until [ ! ps -p ${pid} > /dev/null ] || [ "$retry_count" -eq 5 ]; do
             sleep $(( retry_count++ ))
           done
 
-          if [ kill -0 "$pid" ]; then
+          if [ ps -p ${pid} > /dev/null ]; then
             kill -9 "$pid"
           fi
 
