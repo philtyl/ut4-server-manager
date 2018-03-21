@@ -46,7 +46,7 @@ function status() {
 
       * )
         pid=$(cat "~/.ut4/pid/$1")
-        [[ f=$(ps -p ${pid}) ]] && status="UP" || status="DOWN"
+        [[ ! -z "$pid" ]] && [[ f=$(ps -p ${pid}) ]] && status="UP" || status="DOWN"
         printf "║ %16s │ %6s │ %8d ║\n" "$1" "$status" "$pid"
         ;;
     esac
