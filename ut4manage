@@ -91,7 +91,8 @@ function download_server() {
 function unpack_server() {
   rm -rf ${UT4_ROOT_DIR}/core
   mkdir -p ${UT4_ROOT_DIR}/core
-  unzip `echo "$server_url" | sed -r 's/.*\/.*\///'` -d ${UT4_ROOT_DIR}/core
+  filename=`echo "$server_url" | sed -r 's/.*\/.*\///'`
+  unzip /tmp/ut4-server-download/${filename} -d ${UT4_ROOT_DIR}/core
   return $?
 }
 
