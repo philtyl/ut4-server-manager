@@ -39,7 +39,6 @@ function status() {
       -a | --all )
         if [ -d "$UT4_ROOT_DIR/servers" ]; then
           for server in ${UT4_ROOT_DIR}/servers/*/; do
-            [ -f "$server" ] || continue
             status ${server##*/}
           done
         fi
