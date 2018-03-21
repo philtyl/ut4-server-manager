@@ -149,16 +149,16 @@ function create_server() {
 }
 
 function update_server_settings() {
-  local editor=false
+  local edit=false
   while [ ! -z "$1" ]; do
     case $1 in
       -e | --editor )
-        editor=true
+        edit=true
         ;;
 
       * )
         if [ -d "$UT4_ROOT_DIR/servers/$1" ]; then
-          if [ ${editor} ]; then
+          if ${edit}; then
             ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Engine.ini"
             ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Game.ini"
             ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Rules.ini"
@@ -167,7 +167,8 @@ function update_server_settings() {
           cp "$UT4_ROOT_DIR/servers/$1/config/Game.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Game.ini"
           cp "$UT4_ROOT_DIR/servers/$1/config/Rules.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Rules.ini"
           for ruleset in "$UT4_ROOT_DIR/servers/$1/config/rulesets/*.json"; do
-            if [ "$editor" ]; then
+            [ -f "$ruleset" ] || continue
+            if ${edit}; then
               ${EDITOR} "$ruleset"
             fi
             cp ruleset "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/Rulesets"
