@@ -22,6 +22,9 @@ function status_footer() {
 }
 
 function status() {
+  if [ -z "$1" ]; then
+    $1="-a"
+  fi
   while [ ! -z "$1" ]; do
     case $1 in
       -a | --all )
