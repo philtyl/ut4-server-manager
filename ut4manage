@@ -1,18 +1,6 @@
 #!/usr/bin/env bash
 # ut4 server management script
 
-function usage() {
-  case $1 in
-    install )
-      echo "Usage: ut4manage [-i | install | init [-u | --url server_download_url]]"
-      ;;
-
-    * )
-      echo "Usage: ut4manage [-h | -s [instance] | -i [-u | --url server_download_url]]"
-      ;;
-  esac
-}
-
 function default_settings() {
   if [ -z "$UT4_ROOT_DIR" ]; then
     UT4_ROOT_DIR=~/.ut4
@@ -218,6 +206,26 @@ function safe_source() {
   if [ -f "$1" ]; then
     source "$1"
   fi
+}
+
+function usage() {
+  case $1 in
+    install )
+      echo "usage: ut4manage [-i | install | init [-u | --url serverpack_url]]"
+      ;;
+
+    * )
+      echo "usage: ut4manage [-h | -skurb [-a | instance] | -c instance | -i [-u serverpack_url]]"
+      echo "  -h  print this usage"
+      echo "  -s [-a | instance]: status given server instance (-a for all created servers)"
+      echo "  -k [-a | instance]: stop given server instance (-a for all created servers)"
+      echo "  -u [-a | instance]: update given server instance config file (-a for all created servers)"
+      echo "  -r [-a | instance]: start given server instance (-a for all created servers)"
+      echo "  -b [-a | instance]: restart given server instance (-a for all created servers)"
+      echo "  -c instance: create server instance with default configs"
+      echo "  -i [-u serverpack_url]: install/update core server game files.  optional param [-u serverpack_url] skips prompt"
+      ;;
+  esac
 }
 
 function main() {
