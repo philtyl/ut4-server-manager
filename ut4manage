@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -x
 # ut4 server management script
 
 function usage() {
@@ -33,7 +33,7 @@ function status() {
   while [ ! -z "$1" ]; do
     case $1 in
       -a | --all )
-          if [ -d "$UT4_ROOT_DIR/servers" ]; then
+        if [ -d "$UT4_ROOT_DIR/servers" ]; then
           for server in "$UT4_ROOT_DIR/servers"; do
             status ${server##*/}
           done
@@ -58,6 +58,7 @@ function install() {
         shift
         server_url=$1
         ;;
+
       * )
         usage install
         ;;
