@@ -171,16 +171,16 @@ function update_server_settings() {
             ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Rules.ini"
           fi
           mkdir -p "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer"
-          cp "$UT4_ROOT_DIR/servers/$1/config/Engine.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Engine.ini"
-          cp "$UT4_ROOT_DIR/servers/$1/config/Game.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Game.ini"
-          cp "$UT4_ROOT_DIR/servers/$1/config/Rules.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Rules.ini"
+          update_server_file "$UT4_ROOT_DIR/servers/$1/config/Engine.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Engine.ini"
+          update_server_file "$UT4_ROOT_DIR/servers/$1/config/Game.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Game.ini"
+          update_server_file "$UT4_ROOT_DIR/servers/$1/config/Rules.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Rules.ini"
           mkdir -p "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/Rulesets"
           for ruleset in "$UT4_ROOT_DIR/servers/$1/config/rulesets/*.json"; do
             [ -f "$ruleset" ] || continue
             if ${edit}; then
               ${EDITOR} "$ruleset"
             fi
-            cp ruleset "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/Rulesets"
+            update_server_file "$ruleset" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/Rulesets"
           done
         else
           echo "Server $1 has not been created, skipping..."
@@ -189,6 +189,13 @@ function update_server_settings() {
     esac
     shift
   done
+}
+
+function update_server_file() {
+  source=$1
+  dest=$2
+  rm ${dest}
+  cp ${source} ${dest}
 }
 
 function start_server() {
