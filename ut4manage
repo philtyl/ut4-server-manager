@@ -108,14 +108,15 @@ function stop_server() {
   while [ ! -z "$1" ]; do
     case $1 in
       -a | all )
-        for server in ~/.ut4/pid/; do
+        for server in ~/.ut4/pid/*; do
+          [ -d "$server" ] || continue
           stop_server ${server##*/}
         done
         ;;
 
       * )
-        if [ -f "~/.ut4/pid/$1" ]; then
-          pid=$(cat "~/.ut4/pid/$1")
+        if [ -f ~/.ut4/pid/$1 ]; then
+          pid=$(cat ~/.ut4/pid/$1)
           kill "$pid"
 
           retry_count=0
@@ -127,7 +128,7 @@ function stop_server() {
             kill -9 "$pid"
           fi
 
-          rm "~/.ut4/pid/$1"
+          rm ~/.ut4/pid/$1
         else
           echo "Server $1 is not running, skipping..."
         fi
@@ -198,7 +199,7 @@ function start_server() {
         ;;
 
       * )
-        if [ ! -f "~/.ut4/pid/$1" ]; then
+        if [ ! -f ~/.ut4/pid/$1 ]; then
           safe_source "$UT4_ROOT_DIR/servers/$1/config/runtime.conf"
           mkdir -p "$UT4_ROOT_DIR/servers/$1/logs"
           savelog "$UT4_ROOT_DIR/servers/$1/logs/server-$1.log"
