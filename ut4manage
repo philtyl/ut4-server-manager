@@ -1,0 +1,275 @@
+#!/usr/bin/env bash
+# ut4 server management script
+
+function usage() {
+  case $1 in
+    install )
+      echo "Usage: ut4manage [-i | install | init [-u | --url server_download_url]]"
+      ;;
+
+    * )
+      echo "Usage: ut4manage [-h | -s [instance] | -i [-u | --url server_download_url]]"
+      ;;
+  esac
+}
+
+function default_settings() {
+  if [ -z "$UT4_ROOT_DIR" ]; then
+    UT4_ROOT_DIR=~/.ut4
+  fi
+}
+
+function status_header() {
+  echo "╔══════════════════╤════════╤══════════╗"
+  printf "║ %16s │ %6s │ %8s ║" "Server" "Status" "Process"
+  echo "╟──────────────────┼────────┼──────────╗"
+}
+
+function status_footer() {
+  echo "╚══════════════════╧════════╧══════════╝"
+}
+
+function status() {
+  while [ ! -z "$1" ]; do
+    case $1 in
+      -a | all )
+        for server in "$UT4_ROOT_DIR/servers/$1/config"; do
+          status ${server##*/}
+        done
+        ;;
+
+      * )
+        pid=$(cat "~/.ut4/pid/$1")
+        [[ kill -0 "$pid" ]] && status="UP" || status="DOWN"
+        printf "║ %16s │ %6s │ %8d ║" "$1" "$status" "$pid"
+        ;;
+    esac
+    shift
+  done
+}
+
+function install() {
+  local server_url=
+  while [ ! -z "$1" ]; do
+    case $1 in
+      -u | --url )
+        shift
+        server_url=$1
+        ;;
+      * )
+        usage install
+        ;;
+    esac
+    shift
+  done
+
+  if [ download_server "$server_url" ]; then
+    echo "Unable to download UT4 server pack"
+    exit 1
+  fi
+
+  if [ unpack_server "$server_url" ]; then
+    echo "Unable to install base UT4 server pack"
+    exit 1
+  fi
+}
+
+function download_server() {
+  local server_url=$1
+  if [ -z "$server_url" ]; then
+    echo "Server Download URL [Release list accessible from https://www.epicgames.com/unrealtournament/blog?category=releases]: "
+    read server_url
+  fi
+
+  rm -rf /tmp/ut4-server-download
+  wget -P /tmp/ut4-server-download --unlink "$server_url"
+  return $?
+}
+
+function unpack_server() {
+  local server_url=$1
+  rm -rf ${UT4_ROOT_DIR}/core
+  mkdir -p ${UT4_ROOT_DIR}/core
+  unzip `echo "$server_url" | sed -r 's/.*\/.*\///'` -d ${UT4_ROOT_DIR}/core
+  return $?
+}
+
+function stop_server() {
+  while [ ! -z "$1" ]; do
+    case $1 in
+      -a | all )
+        for server in ~/.ut4/pid/; do
+          stop_server ${server##*/}
+        done
+        ;;
+
+      * )
+        if [ -f "~/.ut4/pid/$1" ]; then
+          pid=$(cat "~/.ut4/pid/$1")
+          kill "$pid"
+
+          retry_count=0
+          until [ ! kill -0 "$pid" ] || [ "$retry_count" -eq 5 ]; do
+            sleep $(( retry_count++ ))
+          done
+
+          if [ kill -0 "$pid" ]; then
+            kill -9 "$pid"
+          fi
+
+          rm "~/.ut4/pid/$1"
+        else
+          echo "Server $1 is not running, skipping..."
+        fi
+        ;;
+    esac
+    shift
+  done
+}
+
+function create_server() {
+  while [ ! -z "$1" ]; do
+    if [ ! -d "$UT4_ROOT_DIR/servers/$1" ]; then
+      mkdir -p "$UT4_ROOT_DIR/servers/$1/config"
+      cp -r "~/.ut4/template/*" "$UT4_ROOT_DIR/servers/$1/config/"
+      cp -rfal "$UT4_ROOT_DIR/core" "$UT4_ROOT_DIR/servers/$1/game"
+      sed -i "s/ServerName=/ServerName=$1 Server/g" "$UT4_ROOT_DIR/servers/$1/config/Game.ini"
+      update_server_settings "$1"
+    else
+       echo "Server $1 already created, skipping..."
+    fi
+    shift
+  done
+}
+
+function update_server_settings() {
+  local editor=false
+  while [ ! -z "$1" ]; do
+    case $1 in
+      -e | --editor )
+        editor=true
+        ;;
+
+      * )
+        if [ -d "$UT4_ROOT_DIR/servers/$1" ]; then
+          if [ "$editor" ]; then
+            ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Engine.ini"
+            ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Game.ini"
+            ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Rules.ini"
+          fi
+          cp "$UT4_ROOT_DIR/servers/$1/config/Engine.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Engine.ini"
+          cp "$UT4_ROOT_DIR/servers/$1/config/Game.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Game.ini"
+          cp "$UT4_ROOT_DIR/servers/$1/config/Rules.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Rules.ini"
+          for ruleset in "$UT4_ROOT_DIR/servers/$1/config/rulesets/*.json"; do
+            if [ "$editor" ]; then
+              ${EDITOR} "$ruleset"
+            fi
+            cp ruleset "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/Rulesets"
+          done
+        else
+          echo "Server $1 has not been created, skipping..."
+        fi
+        ;;
+    esac
+    shift
+  done
+}
+
+function start_server() {
+  while [ ! -z "$1" ]; do
+    case $1 in
+      -a | all )
+        for server in "$UT4_ROOT_DIR/servers/$1/config"; do
+          start_server ${server##*/}
+        done
+        ;;
+
+      * )
+        if [ ! -f "~/.ut4/pid/$1" ]; then
+          safe_source "$UT4_ROOT_DIR/servers/$1/config/runtime.conf"
+          mkdir -p "$UT4_ROOT_DIR/servers/$1/logs"
+          savelog "$UT4_ROOT_DIR/servers/$1/logs/server-$1.log"
+          ${UT4_ROOT_DIR}/game/Engine/Binaries/Linux/${SERVER_BINARY} UnrealTournament ${SERVER_START_PARAMS} 2>&1 >> "$UT4_ROOT_DIR/servers/$1/logs/server-$1.log"
+         echo $1 >> "~/.ut4/pid/$1"
+        else
+          echo "Server $1 is already running, skipping..."
+        fi
+        ;;
+    esac
+    shift
+  done
+}
+
+function safe_source() {
+  if [ -f "$1" ]; then
+    source "$1"
+  fi
+}
+
+function main() {
+  default_settings
+  while [ ! -z "$1" ]; do
+    case $1 in
+      -h | --help | help )
+        usage
+        exit 0
+        ;;
+
+      -s | status )
+        status_header
+        status "$@"
+        status_footer
+        exit 0
+        ;;
+
+      -i | install | init | update-server )
+        shift
+        stop_server all
+        install "$@"
+        exit 0
+        ;;
+
+      -k | stop )
+        shift
+        stop_server "$@"
+        exit 0
+        ;;
+
+      -c | create )
+        shift
+        create_server "$@"
+        exit 0
+        ;;
+
+      -u | update )
+        shift
+        stop_server "$@"
+        update_server_settings "$@"
+        start_server "$@"
+        exit 0
+        ;;
+
+      -r | start )
+        shift
+        start_server "$@"
+        exit 0
+        ;;
+
+      -b | bounce | restart )
+        shift
+        stop_server "$@"
+        start_server "$@"
+        exit 0
+        ;;
+
+      * )
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+  done
+}
+
+safe_source "~/.ut4/config"
+main "$@"
