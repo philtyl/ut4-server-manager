@@ -32,10 +32,12 @@ function status_footer() {
 function status() {
   while [ ! -z "$1" ]; do
     case $1 in
-      -a | all )
-        for server in "$UT4_ROOT_DIR/servers/$1/config"; do
-          status ${server##*/}
-        done
+      -a | --all )
+          if [ -d "$UT4_ROOT_DIR/servers" ]; then
+          for server in "$UT4_ROOT_DIR/servers"; do
+            status ${server##*/}
+          done
+        fi
         ;;
 
       * )
