@@ -21,8 +21,8 @@ function default_settings() {
 
 function status_header() {
   echo "╔══════════════════╤════════╤══════════╗"
-  printf "║ %16s │ %6s │ %8s ║" "Server" "Status" "Process"
-  echo "╟──────────────────┼────────┼──────────╗"
+  printf "║ %16s │ %6s │ %8s ║\n" "Server" "Status" "Process"
+  echo "╟──────────────────┼────────┼──────────╢"
 }
 
 function status_footer() {
@@ -41,7 +41,7 @@ function status() {
       * )
         pid=$(cat "~/.ut4/pid/$1")
         [[ f=$(ps -p ${pid}) ]] && status="UP" || status="DOWN"
-        printf "║ %16s │ %6s │ %8d ║" "$1" "$status" "$pid"
+        printf "║ %16s │ %6s │ %8d ║\n" "$1" "$status" "$pid"
         ;;
     esac
     shift
