@@ -151,6 +151,7 @@ function create_server() {
       cp -r ~/.ut4/template/* "$UT4_ROOT_DIR/servers/$1/config/"
       cp -rfal "$UT4_ROOT_DIR/core/LinuxServer" "$UT4_ROOT_DIR/servers/$1/game"
       sed -i "s/ServerName=/ServerName=$1 Server/g" "$UT4_ROOT_DIR/servers/$1/config/Game.ini"
+      sed -i "s/GENERATED/$(uuidgen | tr -d '-' | tr '[:lower:]' '[:upper:]')/g" "$UT4_ROOT_DIR/servers/$1/config/Game.ini"
       update_server_settings "$1"
     else
        echo "Server $1 already created, skipping..."
