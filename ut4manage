@@ -86,9 +86,18 @@ function install() {
     exit 1
   fi
 
+  if [ ! -d ${UT4_ROOT_DIR}/template ]; then
+    cp -r $(dirname $0)/template ${UT4_ROOT_DIR}/template
+  fi
+
+  if [ ! -f ${UT4_ROOT_DIR}/config ]; then
+    cp $(dirname $0)/config ${UT4_ROOT_DIR}/config
+  fi
+
   chmod a+x ${UT4_ROOT_DIR}/core/LinuxServer/Engine/Binaries/Linux/*
   chmod a+x ${UT4_ROOT_DIR}/core/LinuxServer/UnrealTournament/Binaries/Linux/*
   ${UT4_ROOT_DIR}/core/LinuxServer/Engine/Binaries/Linux/${SERVER_BINARY} UnrealTournament ${SERVER_START_PARAMS} -log
+
 }
 
 function download_server() {
@@ -164,6 +173,12 @@ function update_server_settings() {
   local edit=false
   while [ ! -z "$1" ]; do
     case $1 in
+      -a | all )
+        for server in "$UT4_ROOT_DIR/servers/$1/config"; do
+          update_server_settings ${server##*/}
+        done
+        ;;
+
       -e | --editor )
         edit=true
         ;;
@@ -176,16 +191,14 @@ function update_server_settings() {
             ${EDITOR} "$UT4_ROOT_DIR/servers/$1/config/Rules.ini"
           fi
           mkdir -p "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer"
-          update_server_file "$UT4_ROOT_DIR/servers/$1/config/Engine.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Engine.ini"
-          update_server_file "$UT4_ROOT_DIR/servers/$1/config/Game.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Game.ini"
-          update_server_file "$UT4_ROOT_DIR/servers/$1/config/Rules.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer/Rules.ini"
+          cp --remove-destination "$UT4_ROOT_DIR/servers/$1/config/*.ini" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/LinuxServer"
           mkdir -p "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/Rulesets"
           for ruleset in "$UT4_ROOT_DIR/servers/$1/config/rulesets/*.json"; do
             [ -f "$ruleset" ] || continue
             if ${edit}; then
               ${EDITOR} "$ruleset"
             fi
-            update_server_file "$ruleset" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/Rulesets"
+            cp --remove-destination  "$ruleset" "$UT4_ROOT_DIR/servers/$1/game/UnrealTournament/Saved/Config/Rulesets"
           done
         else
           echo "Server $1 has not been created, skipping..."
@@ -194,13 +207,6 @@ function update_server_settings() {
     esac
     shift
   done
-}
-
-function update_server_file() {
-  source=$1
-  dest=$2
-  rm ${dest}
-  cp ${source} ${dest}
 }
 
 function start_server() {
@@ -320,5 +326,6 @@ function main() {
   done
 }
 
+safe_source "`dirname $0`/config"
 safe_source "~/.ut4/config"
 main "$@"
